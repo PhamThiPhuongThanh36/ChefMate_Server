@@ -84,3 +84,13 @@ CREATE TABLE IF NOT EXISTS UsersComment (
     FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE,
     FOREIGN KEY (recipeId) REFERENCES Recipes(recipeId) ON DELETE CASCADE
 );
+
+CREATE TABLE UserSavedRecipes (
+  usrId INT PRIMARY KEY AUTO_INCREMENT,
+  userId INT NOT NULL,
+  recipeId INT NOT NULL,
+  savedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (userId) REFERENCES Users(userId),
+  FOREIGN KEY (recipeId) REFERENCES Recipes(recipeId),
+  UNIQUE (userId, recipeId) -- ngăn người dùng lưu trùng 1 công thức
+);
