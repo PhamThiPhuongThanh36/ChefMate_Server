@@ -1,9 +1,29 @@
-// middleware/upload.js
 const multer = require('multer');
 const path = require('path');
 
+// 1. ĐỊNH NGHĨA STORAGE ENGINE
+const storage = multer.diskStorage({
+    // Chỉ định thư mục lưu file
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/');
+    },
+    // Chỉ định tên file mới
+    filename: function (req, file, cb) {
+        // Lấy đuôi file gốc (ví dụ: .jpg, .png)
+        const extension = path.extname(file.originalname);
+
+        // Tạo tên file duy nhất: tên gốc (bỏ đuôi) + timestamp + đuôi
+        const originalName = path.basename(file.originalname, extension);
+        const uniqueSuffix = Date.now();
+
+        // Tên file cuối cùng, ví dụ: "my-image-1678886400000.jpg"
+        cb(null, originalName + '-' + uniqueSuffix + extension);
+    }
+});
+
+// 2. SỬ DỤNG 'storage' THAY VÌ 'dest'
 const upload = multer({
-    dest: 'uploads/',
+    storage: storage, // <-- THAY ĐỔI QUAN TRỌNG
     limits: {
         fileSize: 10 * 1024 * 1024,
         fieldSize: 10 * 1024 * 1024,
@@ -17,7 +37,7 @@ const upload = multer({
         if (ext && mime) return cb(null, true);
         cb(new Error('Chỉ cho phép ảnh JPEG/PNG/GIF'));
     }
-}).single('image'); // Đính kèm ảnh vào req.file, còn lại: req.body
+}).single('image');
 
 const handleMulterError = (err, req, res, next) => {
     if (err instanceof multer.MulterError) {
