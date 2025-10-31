@@ -11,6 +11,33 @@ exports.getAll = async (req, res) => {
     }
 };
 
+exports.insertCollection = async (req, res) => {
+    try {
+        await Recipe.insertCollection(req.body)
+        res.status(201).json({
+            success: true,
+            message: 'Lưu công thức thành công',
+            data: null
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
+exports.getCollection = async (req, res) => {
+    try {
+        const userId = req.body;
+        const recipes = await Recipe.getCollection(userId);
+        res.json({
+            success: true,
+            data: recipes,
+            message: 'Lấy danh sách công thức thành công'
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
 exports.searchByName = async (req, res) => {
     try {
         const { name } = req.query;
@@ -161,3 +188,23 @@ exports.getAllTags = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+exports.getRecipeById = async (req, res) => {
+    try {
+        const recipeId = req.query.recipeId;
+        const recipe = await Recipe.getRecipeById(recipeId);
+        if (!recipe) {
+            return res.status(404).json({
+                success: false,
+                message: 'Không tìm thấy công thức'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: recipe
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
