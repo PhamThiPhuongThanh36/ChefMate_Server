@@ -143,20 +143,11 @@ class Recipe {
         return [rows]
     }
 
-    // static async getRecipeById(recipeId) {
-    //     const [rows] = await pool.query(
-    //         'SELECT * FROM Recipes WHERE recipeId = ?',
-    //         [recipeId]
-    //     )
-    //     return rows[0]
-    // }
-
     static async GetRecipeById(recipeId) {
         const [[recipe]] = await pool.query(
             `SELECT * FROM Recipes WHERE recipeId = ?`, [recipeId]
         );
 
-        // 2️⃣ Lấy nguyên liệu
         const [ingredients] = await pool.query(
             `
         SELECT i.ingredientName, ri.weight, ri.unit
@@ -167,7 +158,6 @@ class Recipe {
             [recipeId]
         );
 
-        // 3️⃣ Lấy các bước nấu
         const [steps] = await pool.query(
             `
         SELECT indexStep, content
@@ -178,7 +168,6 @@ class Recipe {
             [recipeId]
         );
 
-        // 4️⃣ Gộp lại
         recipe.ingredients = ingredients;
         recipe.steps = steps;
 
