@@ -126,6 +126,64 @@ class Recipe {
             );
         }
     }
+
+    static async insertCollection(collectionData) {
+        const { userId, recipeId } = collectionData
+        await pool.query(
+            'INSERT INTO UserSavedRecipes (userId, recipeId) VALUES (?, ?)',
+            [userId, recipeId]
+        );
+    }
+
+    static async getCollection(userId) {
+        const [rows] = await pool.query(
+            'SELECT * FROM UserSavedRecipes WHERE userId = ?',
+            [userId]
+        )
+        return [rows]
+    }
+
+    // static async getRecipeById(recipeId) {
+    //     const [rows] = await pool.query(
+    //         'SELECT * FROM Recipes WHERE recipeId = ?',
+    //         [recipeId]
+    //     )
+    //     return rows[0]
+    // }
+
+    static async GetRecipeById(recipeId) {
+        const [[recipe]] = await pool.query(
+            `SELECT * FROM Recipes WHERE recipeId = ?`, [recipeId]
+        );
+
+        // 2️⃣ Lấy nguyên liệu
+        const [ingredients] = await pool.query(
+            `
+        SELECT i.ingredientName, ri.weight, ri.unit
+        FROM RecipesIngredients AS ri
+        JOIN Ingredients AS i ON ri.ingredientId = i.ingredientId
+        WHERE ri.recipeId = ?
+        `,
+            [recipeId]
+        );
+
+        // 3️⃣ Lấy các bước nấu
+        const [steps] = await pool.query(
+            `
+        SELECT indexStep, content
+        FROM CookingSteps
+        WHERE recipeId = ?
+        ORDER BY indexStep ASC
+        `,
+            [recipeId]
+        );
+
+        // 4️⃣ Gộp lại
+        recipe.ingredients = ingredients;
+        recipe.steps = steps;
+
+        return recipe;
+    }
 }
 
 module.exports = Recipe;
