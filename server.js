@@ -21,6 +21,8 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api', routes);
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 connectDB().then(() => {
     app.listen(port, () => {
