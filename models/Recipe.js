@@ -25,11 +25,11 @@ class Recipe {
         return rows;
     }
 
-    static async create(connection, { recipeName, image, cookingTime, ration, userId }) {
+    static async create(connection, { recipeName, image, isPublic, cookingTime, ration, userId }) {
         const [result] = await connection.query(
-            `INSERT INTO Recipes (recipeName, image, cookingTime, ration, likeQuantity, userId, viewCount)
-             VALUES (?, ?, ?, ?, 0, ?, 0)`,
-            [recipeName, image, cookingTime, ration, userId]
+            `INSERT INTO Recipes (recipeName, image, isPublic, cookingTime, ration, likeQuantity, userId, viewCount)
+             VALUES (?, ?, ?, ?, ?, 0, ?, 0)`,
+            [recipeName, image, isPublic, cookingTime, ration, userId]
         );
         return result.insertId;
     }
@@ -143,7 +143,15 @@ class Recipe {
         return [rows]
     }
 
-    static async GetRecipeById(recipeId) {
+    static async deleteCollectionById(collectionData) {
+        const { userId, recipeId } = collectionData
+        await pool.query(
+            'DELETE FROM UserSavedRecipes WHERE userId = ? AND recipeId = ?',
+            [userId, recipeId]
+        )
+    }
+
+    static async getRecipeById(recipeId) {
         const [[recipe]] = await pool.query(
             `SELECT * FROM Recipes WHERE recipeId = ?`, [recipeId]
         );
@@ -168,8 +176,19 @@ class Recipe {
             [recipeId]
         );
 
+        const [userRows] = await pool.query(
+            `
+        SELECT u.userId, u.fullName, u.image
+        FROM Users AS u
+        JOIN Recipes AS r ON u.userId = r.userId
+        Where r.recipeId = ?
+            `,
+            [recipeId]
+        );
+        const user = userRows.length > 0 ? userRows[0] : null;
         recipe.ingredients = ingredients;
         recipe.steps = steps;
+        recipe.user = user;
 
         return recipe;
     }
