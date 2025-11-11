@@ -10,10 +10,12 @@ router.get('/user/:userId', recipeController.getByUser);
 router.get('/trending', recipeController.getTrending);
 router.get('/ingredients', recipeController.getAllIngredients);
 router.get('/tags', recipeController.getAllTags);
-router.get('insertCollection', recipeController.insertCollection);
 router.get('/recipe', recipeController.getRecipeById);
 
+router.post('/insertCollection', recipeController.insertCollection);
 router.post('/getcollection', recipeController.getCollection);
 router.post('/create', upload, handleMulterError, recipeController.create);
+
+router.delete('/deleteCollection', recipeController.deleteCollectionById)
 
 module.exports = router;
