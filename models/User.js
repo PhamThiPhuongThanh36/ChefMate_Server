@@ -16,7 +16,7 @@ class User {
         );
         const userId = result.insertId;
         const [rows] = await pool.query(
-            'SELECT userId, fullName, phone, email FROM Users WHERE userId = ?',
+            'SELECT * FROM Users WHERE userId = ?',
             [userId]
         )
         return rows[0];
@@ -41,12 +41,23 @@ class User {
         );
     }
 
-    static async updateProfile(userId, updates) {
-        const { fullName, phone, email } = updates;
-        await pool.query(
-            'UPDATE Users SET fullName = ?, phone = ?, email = ? WHERE userId = ?',
-            [fullName, phone, email, userId]
+    static async updateProfile(userId, { fullName, phone, email, image }) {
+        let sql = 'UPDATE Users SET fullName = ?, phone = ?, email = ?';
+        const values = [fullName, phone, email];
+        if (image) {
+            sql += ', image = ?';
+            values.push(image);
+        }
+        sql += ' WHERE userId = ?';
+        values.push(userId);
+        await pool.query(sql, values);
+
+        const [rows] = await pool.query(
+            'SELECT * FROM Users WHERE userId = ?',
+            [userId]
         );
+        const userData = rows[0];
+        return userData;
     }
 }
 
