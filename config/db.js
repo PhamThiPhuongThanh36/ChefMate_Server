@@ -8,7 +8,14 @@ const pool = mysql.createPool({
     database: process.env.DB_NAME,
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+
+    typeCast: function (field, next) {
+        if (field.type === 'TINY' && field.length === 1) {
+            return (field.string() === '1');
+        }
+        return next();
+    }
 });
 
 async function connectDB() {
