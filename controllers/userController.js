@@ -12,7 +12,11 @@ exports.getAllUsers = async (req, res) => {
 exports.register = async (req, res) => {
     try {
         const user = await User.register(req.body);
-        res.status(201).json({ message: 'Đăng ký thành công', data: user });
+        res.status(201).json({
+            success: true,
+            message: 'Đăng ký thành công',
+            data: user
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -23,7 +27,11 @@ exports.login = async (req, res) => {
         const { identifier, password } = req.body;
         const user = await User.login(identifier, password);
         if (!user) return res.status(401).json({ error: 'Sai thông tin đăng nhập' });
-        res.json({ message: 'Đăng nhập thành công', data: user });
+        res.json({
+            success: true,
+            message: 'Đăng nhập thành công',
+            data: user
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -42,8 +50,20 @@ exports.changePassword = async (req, res) => {
 exports.updateProfile = async (req, res) => {
     try {
         const { userId } = req.params;
-        await User.updateProfile(userId, req.body);
-        res.json({ message: 'Cập nhật thông tin thành công' });
+        const {
+            fullName,
+            phone,
+            email
+        } = req.body;
+        console.log("Body:", req.body);
+        console.log("File:", req.file);
+        const image = req.file ? `/uploads/${req.file.filename}` : '';
+        const data = await User.updateProfile(userId, { fullName, phone, email, image });
+        res.json({
+            success: true,
+            message: 'Cập nhật thông tin thành công',
+            data: data
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
