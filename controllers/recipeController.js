@@ -24,6 +24,19 @@ exports.insertCollection = async (req, res) => {
     }
 }
 
+exports.deleteCollectionById = async (req, res) => {
+    try {
+        await Recipe.deleteCollectionById(req.body)
+        res.status(201).json({
+            success: true,
+            message: 'Xóa công thức khỏi kho thành công',
+            data: null
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
 exports.getCollection = async (req, res) => {
     try {
         const userId = req.body;
